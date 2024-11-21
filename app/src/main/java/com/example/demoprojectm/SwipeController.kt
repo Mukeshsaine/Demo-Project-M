@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 
+
 class SwipeController(
     private val context: Context,
     private val buttonClickListener: (String) -> Unit
@@ -25,6 +26,8 @@ class SwipeController(
         GONE, LEFT_VISIBLE, RIGHT_VISIBLE
     }
 
+    private var swipedPosition = -1
+    private lateinit var recyclerView: RecyclerView
     private var buttonShowedState = ButtonsState.GONE
 
     override fun getMovementFlags(
@@ -41,7 +44,12 @@ class SwipeController(
     ): Boolean = false
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        // When the cell is swiped, show the appropriate buttons
+        // Reset the previous swipe if another item is swiped
+        if (swipedPosition != viewHolder.adapterPosition) {
+            recyclerView.adapter?.notifyItemChanged(swipedPosition)
+        }
+        swipedPosition = viewHolder.adapterPosition
+
         when (direction) {
             ItemTouchHelper.LEFT -> showLeftSwipe()
             ItemTouchHelper.RIGHT -> showRightSwipe()
@@ -138,23 +146,24 @@ class SwipeController(
             p
         )
     }
-
-    // Detect button clicks based on the touch event
     // Detect button clicks based on the touch event
     fun onTouchEvent(event: MotionEvent) {
         if (event.action == MotionEvent.ACTION_UP) {
+            var buttonClicked = false
             when (buttonShowedState) {
                 ButtonsState.LEFT_VISIBLE -> {
                     // Check for button A (ButA)
                     buttonA?.let {
                         if (it.contains(event.x, event.y)) {
                             showToast("ButA")
+                            buttonClicked = true
                         }
                     }
                     // Check for button B (ButB)
                     buttonB?.let {
                         if (it.contains(event.x, event.y)) {
                             showToast("ButB")
+                            buttonClicked = true
                         }
                     }
                 }
@@ -163,16 +172,18 @@ class SwipeController(
                     buttonC?.let {
                         if (it.contains(event.x, event.y)) {
                             showToast("ButC")
+                            buttonClicked = true
                         }
                     }
                     // Check for button D (ButD)
                     buttonD?.let {
                         if (it.contains(event.x, event.y)) {
                             showToast("ButD")
+                            buttonClicked = true
                         }
                     }
                 }
-                else -> {}
+                else -> {resetSwipeState()}
             }
         }
     }
@@ -181,7 +192,6 @@ class SwipeController(
     private fun showToast(buttonName: String) {
         Toast.makeText(context, "$buttonName clicked", Toast.LENGTH_SHORT).show()
     }
-
 
     // Show left swipe buttons (ButA, ButB)
     private fun showLeftSwipe() {
@@ -193,8 +203,15 @@ class SwipeController(
         buttonShowedState = ButtonsState.RIGHT_VISIBLE
     }
 
-    // Attach this method to the RecyclerView to detect touch events
+    private fun resetSwipeState() {
+        if (swipedPosition != -1) {
+            recyclerView.adapter?.notifyItemChanged(swipedPosition)
+            swipedPosition = -1
+        }
+        buttonShowedState = ButtonsState.GONE
+    }
     fun attachToRecyclerView(recyclerView: RecyclerView) {
+        this.recyclerView = recyclerView
         recyclerView.setOnTouchListener { _, event ->
             onTouchEvent(event)
             false

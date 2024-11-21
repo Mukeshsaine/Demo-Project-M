@@ -29,28 +29,11 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
-
-       /* // Initialize the SwipeController with a button click listener
         val swipeController = SwipeController(this) { buttonName ->
-            Toast.makeText(this, "$buttonName clicked", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this, "$buttonName clicked", Toast.LENGTH_SHORT).show()
         }
-
         val itemTouchHelper = ItemTouchHelper(swipeController)
         itemTouchHelper.attachToRecyclerView(recyclerView)
-        recyclerView.setOnTouchListener { _, event ->
-            swipeController.onTouchEvent(event) // Call the SwipeController's onTouchEvent
-            false
-        }*/
-        val swipeController = SwipeController(this) { buttonName ->
-            // This is where the button click is handled
-            Toast.makeText(this, "$buttonName clicked", Toast.LENGTH_SHORT).show()
-        }
-
-// Attach SwipeController to RecyclerView
-        val itemTouchHelper = ItemTouchHelper(swipeController)
-        itemTouchHelper.attachToRecyclerView(recyclerView)
-
-// Optionally attach the onTouchEvent for button clicks
         swipeController.attachToRecyclerView(recyclerView)
 
     }
